@@ -1,0 +1,123 @@
+[
+  {
+    "SugerNickName": "SolarMuse",
+    "SugerUserIcon": "assets/header_1.webp",
+    "SugerShowPhotoArray": [
+      "assets/header_1_work_1.png",
+      "assets/header_1_work_2.png"
+    ],
+    "SugerShowMotto": "As an INFJ dreamer, I craft luminous myths about resilient heroines and wander through auroras to track their whispered destinies.",
+    "SugerShowFollowNum": 6,
+    "SugerShowLike": 12,
+    "SugerShowSayhi": "Hey kind soul! This INFJ voice is ready to narrate galaxies, weave empathy into every syllable, and accompany your imagination tonight."
+  },
+  {
+    "SugerNickName": "EchoVanguard",
+    "SugerUserIcon": "assets/header_2.webp",
+    "SugerShowPhotoArray": [
+      "assets/header_2_work_1.png",
+      "assets/header_2_work_2.png"
+    ],
+    "SugerShowMotto": "A vigilant ESTJ guardian, I chronicle ironclad legends, syncing decisive cadence with steel skies and duty-bound heartbeats.",
+    "SugerShowFollowNum": 8,
+    "SugerShowLike": 14,
+    "SugerShowSayhi": "Greetings, traveler! My ESTJ cadence stands at attention, eager to brief you with fearless tales that keep every realm secure."
+  },
+  {
+    "SugerNickName": "VelvetNova",
+    "SugerUserIcon": "assets/header_3.webp",
+    "SugerShowPhotoArray": [
+      "assets/header_3_work_1.png",
+      "assets/header_3_work_2.png"
+    ],
+    "SugerShowMotto": "INTP wanderer, forever decoding cosmic folklore, layering logical harmonies atop soft twilight to keep curiosity blazing.",
+    "SugerShowFollowNum": 4,
+    "SugerShowLike": 9,
+    "SugerShowSayhi": "Hi! This INTP narrator drifts between data and daydreams—share a prompt and I’ll improvise starlit explanations just for you."
+  },
+  {
+    "SugerNickName": "LyricalFrost",
+    "SugerUserIcon": "assets/header_4.webp",
+    "SugerShowPhotoArray": [
+      "assets/header_4_work_1.png",
+      "assets/header_4_work_2.png"
+    ],
+    "SugerShowMotto": "ISFP artisan painting glacial ballads, bottling aurora pigments while whispering solace to restless night travelers.",
+    "SugerShowFollowNum": 5,
+    "SugerShowLike": 11,
+    "SugerShowSayhi": "Hey there, fellow wanderer! My ISFP tones are chill and kind; let me hum stories that warm your pulse like cocoa."
+  },
+  {
+    "SugerNickName": "EmberHarbor",
+    "SugerUserIcon": "assets/header_5.webp",
+    "SugerShowPhotoArray": [
+      "assets/header_5_work_1.png",
+      "assets/header_5_work_2.png"
+    ],
+    "SugerShowMotto": "ENFJ lighthouse keeper, herding storm-tossed emotions into hopeful arcs, scripting radiant finales for weary heroes.",
+    "SugerShowFollowNum": 9,
+    "SugerShowLike": 13,
+    "SugerShowSayhi": "Hello friend! Your ENFJ host is excited to guide tonight’s tale, uplifting every scene with cheers, hugs, and a spark of dawn."
+  },
+  {
+    "SugerNickName": "QuantumSkald",
+    "SugerUserIcon": "assets/header_6.webp",
+    "SugerShowPhotoArray": [
+      "assets/header_6_work_1.png",
+      "assets/header_6_work_2.png"
+    ],
+    "SugerShowMotto": "ENTP bard juggling wormholes and wit, remixing ancient sagas with neon gadgets to keep possibilities infinite.",
+    "SugerShowFollowNum": 7,
+    "SugerShowLike": 15,
+    "SugerShowSayhi": "Salutations! Your ENTP raconteur wants to riff wild hypotheticals—drop an idea, and we’ll jam until universes laugh."
+  },
+  {
+    "SugerNickName": "MeadowCipher",
+    "SugerUserIcon": "assets/header_7.webp",
+    "SugerShowPhotoArray": [
+      "assets/header_7_work_1.png",
+      "assets/header_7_work_2.png"
+    ],
+    "SugerShowMotto": "INFP herbalist weaving meadow scents into fairytales, defending gentle spirits with soft yet unwavering conviction.",
+    "SugerShowFollowNum": 3,
+    "SugerShowLike": 8,
+    "SugerShowSayhi": "Hi sunshine! This INFP heart hums stories like lullabies—share your feelings and I’ll wrap them in ever-blooming verses."
+  },
+  {
+    "SugerNickName": "AtlasPulse",
+    "SugerUserIcon": "assets/header_8.webp",
+    "SugerShowPhotoArray": [
+      "assets/header_8_work_1.png",
+      "assets/header_8_work_2.png"
+    ],
+    "SugerShowMotto": "ISTJ chronographer cataloging heroic logistics, engraving each mission log into obsidian archives beneath city lights.",
+    "SugerShowFollowNum": 10,
+    "SugerShowLike": 10,
+    "SugerShowSayhi": "Reporting in! Your ISTJ narrator is ready to deliver precise debriefs with a calm beat—shall we commence the saga?"
+  },
+  {
+    "SugerNickName": "MirageSonata",
+    "SugerUserIcon": "assets/header_9.webp",
+    "SugerShowPhotoArray": [
+      "assets/header_9_work_1.png",
+      "assets/header_9_work_2.png"
+    ],
+    "SugerShowMotto": "ESFP illusionist splashing gemstone deserts with laughter, dressing every dune in melodic, color-shifting stories.",
+    "SugerShowFollowNum": 2,
+    "SugerShowLike": 7,
+    "SugerShowSayhi": "Hola! Your ESFP hype voice can’t wait to celebrate you—give me a scene and I’ll paint it with sparkles and rhythm."
+  },
+  {
+    "SugerNickName": "NebulaScribe",
+    "SugerUserIcon": "assets/header_10.webp",
+    "SugerShowPhotoArray": [
+      "assets/header_10_work_1.png",
+      "assets/header_10_work_2.png"
+    ],
+    "SugerShowMotto": "INTJ tactician steering opera fleets through nebulae, plotting narrative strategies with crystalline precision.",
+    "SugerShowFollowNum": 4,
+    "SugerShowLike": 6,
+    "SugerShowSayhi": "Greetings, commander. This INTJ mind already mapped our dialogue arcs—shall we execute the plan and narrate victory?"
+  }
+]
+
