@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:video_player/video_player.dart';
 import 'report_page.dart';
 import 'work_image_detail_page.dart';
 import 'message_page.dart';
 import 'video_call_page.dart';
+import 'video_detail_page.dart';
 import '../utils/preference_helper.dart';
 
 class WorkPage extends StatefulWidget {
@@ -189,6 +191,7 @@ class _WorkPageState extends State<WorkPage> {
     final List<dynamic> photoArray =
         widget.character['SugerShowPhotoArray'] as List<dynamic>;
     final String motto = widget.character['SugerShowMotto'] as String;
+    final String? videoPath = widget.character['SugerShowVideo'] as String?;
 
     return WillPopScope(
       onWillPop: () async {
@@ -242,6 +245,14 @@ class _WorkPageState extends State<WorkPage> {
                         _ActionButtonsRow(
                           character: widget.character,
                         ),
+                        if (videoPath != null) ...[
+                          const SizedBox(height: 24),
+                          _VideoSection(
+                            videoPath: videoPath,
+                            screenWidth: screenWidth,
+                            character: widget.character,
+                          ),
+                        ],
                         const SizedBox(height: 24),
                         _PhotoGallery(
                           photoArray: photoArray,
@@ -534,7 +545,6 @@ class _ActionButtonsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double screenWidth = MediaQuery.of(context).size.width;
     final String userIcon = character['SugerUserIcon'] as String;
     final String nickName = character['SugerNickName'] as String;
     final String sayhi = character['SugerShowSayhi'] as String;
@@ -829,6 +839,190 @@ class _ActionButtons extends StatelessWidget {
                   ),
                 ),
               ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _VideoSection extends StatefulWidget {
+  const _VideoSection({
+    required this.videoPath,
+    required this.screenWidth,
+    required this.character,
+  });
+
+  final String videoPath;
+  final double screenWidth;
+  final Map<String, dynamic> character;
+
+  @override
+  State<_VideoSection> createState() => _VideoSectionState();
+}
+
+class _VideoSectionState extends State<_VideoSection> {
+  VideoPlayerController? _controller;
+  bool _isInitialized = false;
+  bool _isPlaying = false;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeVideo();
+  }
+
+  Future<void> _initializeVideo() async {
+    try {
+      _controller = VideoPlayerController.asset(widget.videoPath);
+      await _controller!.initialize();
+      if (mounted) {
+        setState(() {
+          _isInitialized = true;
+          _isLoading = false;
+          _isPlaying = _controller!.value.isPlaying;
+        });
+        _controller!.setLooping(true);
+        _controller!.addListener(_videoListener);
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  void _videoListener() {
+    if (_controller != null && mounted) {
+      setState(() {
+        _isPlaying = _controller!.value.isPlaying;
+      });
+    }
+  }
+
+
+  @override
+  void dispose() {
+    _controller?.removeListener(_videoListener);
+    _controller?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Video',
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                color: const Color(0xFF1D1D1D),
+                fontWeight: FontWeight.w700,
+              ),
+        ),
+        const SizedBox(height: 16),
+        GestureDetector(
+          onTap: () async {
+            _controller?.pause();
+            if (!mounted) return;
+            final result = await Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => VideoDetailPage(
+                  character: widget.character,
+                  videoPath: widget.videoPath,
+                ),
+              ),
+            );
+            
+            if (!mounted) return;
+            if (result != null && result is Map) {
+              final String action = result['action'] as String;
+              final Map<String, dynamic> char = result['character'] as Map<String, dynamic>;
+              
+              if (action == 'block' || action == 'mute') {
+                Navigator.of(context).popUntil((route) => route.isFirst);
+                if (mounted && Navigator.of(context).canPop()) {
+                  Navigator.of(context).pop({
+                    'action': action,
+                    'character': char,
+                  });
+                }
+              } else if (action == 'update') {
+                if (mounted) {
+                  Navigator.of(context).pop({
+                    'action': 'update',
+                    'character': char,
+                  });
+                }
+              }
+            }
+          },
+          child: Container(
+            width: double.infinity,
+            height: 240,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: Colors.black, width: 1),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 12,
+                  offset: const Offset(0, 6),
+                ),
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  if (_isLoading)
+                    Container(
+                      color: Colors.black.withOpacity(0.3),
+                      child: const Center(
+                        child: CircularProgressIndicator(
+                          color: Color(0xFFFFC600),
+                        ),
+                      ),
+                    )
+                  else if (_isInitialized && _controller != null)
+                    AspectRatio(
+                      aspectRatio: _controller!.value.aspectRatio,
+                      child: VideoPlayer(_controller!),
+                    )
+                  else
+                    Container(
+                      color: Colors.black.withOpacity(0.3),
+                      child: const Center(
+                        child: Icon(
+                          Icons.error_outline,
+                          color: Colors.white,
+                          size: 48,
+                        ),
+                      ),
+                    ),
+                  if (_isInitialized)
+                    IgnorePointer(
+                      child: Container(
+                        width: 64,
+                        height: 64,
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.5),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          _isPlaying ? Icons.pause : Icons.play_arrow,
+                          color: Colors.white,
+                          size: 32,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
             ),
           ),
         ),

@@ -196,7 +196,9 @@ class _ReportPageState extends State<ReportPage> {
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
-              Navigator.of(context).pop();
+              Navigator.of(context).pop({
+                'action': 'report_submitted',
+              });
             },
             child: const Text('OK'),
           ),

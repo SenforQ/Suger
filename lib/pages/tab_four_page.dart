@@ -1,11 +1,59 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 
 import 'about_us_page.dart';
+import 'edit_page.dart';
 import 'suger_privacy_page.dart';
 import 'suger_terms_page.dart';
+import 'vip_page.dart';
+import 'wallet_page.dart';
+import '../utils/preference_helper.dart';
 
-class TabFourPage extends StatelessWidget {
+class TabFourPage extends StatefulWidget {
   const TabFourPage({super.key});
+
+  @override
+  State<TabFourPage> createState() => _TabFourPageState();
+}
+
+class _TabFourPageState extends State<TabFourPage> {
+  String? _userName;
+  String? _avatarPath;
+  String? _documentsDirPath;
+
+  @override
+  void initState() {
+    super.initState();
+    _initDocumentsDir();
+    _loadUserData();
+  }
+
+  Future<void> _initDocumentsDir() async {
+    final dir = await getApplicationDocumentsDirectory();
+    setState(() {
+      _documentsDirPath = dir.path;
+    });
+  }
+
+  Future<void> _loadUserData() async {
+    final name = await PreferenceHelper.getUserName();
+    final avatarPath = await PreferenceHelper.getUserAvatarPath();
+    setState(() {
+      _userName = name;
+      _avatarPath = avatarPath;
+    });
+  }
+
+  File? _resolveImageFile(String? relativePath) {
+    if (relativePath == null || _documentsDirPath == null) {
+      return null;
+    }
+    final file = File(p.join(_documentsDirPath!, relativePath));
+    return file.existsSync() ? file : null;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,14 +72,27 @@ class TabFourPage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const _TopWaveSection(),
+                  _TopWaveSection(
+                    avatarPath: _avatarPath,
+                    documentsDirPath: _documentsDirPath,
+                    onEdit: () async {
+                      final result = await Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const EditPage(),
+                        ),
+                      );
+                      if (result == true && mounted) {
+                        await _loadUserData();
+                      }
+                    },
+                  ),
                   Padding(
                     padding: EdgeInsets.fromLTRB(24, 0, 24, bottomPadding),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Vivoc',
+                          _userName ?? 'Vivoc',
                           style: theme.textTheme.displaySmall?.copyWith(
                             fontWeight: FontWeight.w700,
                             color: const Color(0xFF1D1D1D),
@@ -45,6 +106,42 @@ class TabFourPage extends StatelessWidget {
                             height: 1.5,
                             color: Color(0xFF5C5C5C),
                           ),
+                        ),
+                        const SizedBox(height: 20),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) => const VipPage(),
+                                    ),
+                                  );
+                                },
+                                child: Image.asset(
+                                  'assets/btn_profile_vip.webp',
+                                  fit: BoxFit.contain,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) => const WalletPage(),
+                                    ),
+                                  );
+                                },
+                                child: Image.asset(
+                                  'assets/btn_profile_wallet.webp',
+                                  fit: BoxFit.contain,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                         const SizedBox(height: 28),
                         _ProfileMenuItem(
@@ -110,10 +207,28 @@ class TabFourPage extends StatelessWidget {
 }
 
 class _TopWaveSection extends StatelessWidget {
-  const _TopWaveSection();
+  const _TopWaveSection({
+    required this.avatarPath,
+    required this.documentsDirPath,
+    required this.onEdit,
+  });
+
+  final String? avatarPath;
+  final String? documentsDirPath;
+  final VoidCallback onEdit;
+
+  File? _resolveImageFile(String? relativePath) {
+    if (relativePath == null || documentsDirPath == null) {
+      return null;
+    }
+    final file = File(p.join(documentsDirPath!, relativePath));
+    return file.existsSync() ? file : null;
+  }
 
   @override
   Widget build(BuildContext context) {
+    final File? displayFile = avatarPath != null ? _resolveImageFile(avatarPath) : null;
+
     return SizedBox(
       height: 260,
       width: double.infinity,
@@ -131,7 +246,7 @@ class _TopWaveSection extends StatelessWidget {
           Positioned(
             left: 24,
             bottom: 16,
-            child: Row(
+            child: Stack(
               children: [
                 Container(
                   width: 96,
@@ -149,9 +264,41 @@ class _TopWaveSection extends StatelessWidget {
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(24),
-                    child: Image.asset(
-                      'assets/user_default.webp',
-                      fit: BoxFit.cover,
+                    child: displayFile != null
+                        ? Image.file(
+                            displayFile,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Image.asset(
+                                'assets/user_default.webp',
+                                fit: BoxFit.cover,
+                              );
+                            },
+                          )
+                        : Image.asset(
+                            'assets/user_default.webp',
+                            fit: BoxFit.cover,
+                          ),
+                  ),
+                ),
+                Positioned(
+                  right: 0,
+                  bottom: 0,
+                  child: GestureDetector(
+                    onTap: onEdit,
+                    child: Container(
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFCC1B),
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 3),
+                      ),
+                      child: const Icon(
+                        Icons.edit,
+                        color: Colors.black,
+                        size: 16,
+                      ),
                     ),
                   ),
                 ),

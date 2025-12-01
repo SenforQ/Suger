@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>activatedTransitionFormat</key>
+	<string>resolverInsidePlatform</string>
+	<key>adaptiveFactoryInteraction</key>
+	<string>blocWithBuffer</string>
+	<key>asynchronousLoopTop</key>
+	<string>eventNumberHead</string>
+	<key>currentThemeFrequency</key>
+	<string>titleShapeDensity</string>
+	<key>navigatorInterpreterPressure</key>
+	<string>screenCompositeInterval</string>
+	<key>originalWorkflowShade</key>
+	<string>threadNearComposite</string>
+	<key>sharedAsyncOpacity</key>
+	<string>easyBehaviorBottom</string>
+	<key>symbolDuringBuffer</key>
+	<string>firstClipperLocation</string>
+</dict>
+</plist>

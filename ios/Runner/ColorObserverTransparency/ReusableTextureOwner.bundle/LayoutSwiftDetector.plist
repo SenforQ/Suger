@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>brushPerKind</key>
+	<string>chapterAtJob</string>
+	<key>buttonProcessCoord</key>
+	<string>featureFacadeShape</string>
+	<key>capacitiesStrategyShade</key>
+	<string>spriteKindShape</string>
+	<key>unsortedLoopAlignment</key>
+	<string>cupertinoFacadeFlags</string>
+</dict>
+</plist>

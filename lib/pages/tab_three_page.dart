@@ -5,6 +5,9 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
+import '../services/coin_service.dart';
+import '../utils/toast_utils.dart';
+
 class TabThreePage extends StatefulWidget {
   const TabThreePage({super.key});
 
@@ -82,6 +85,26 @@ class _TabThreePageState extends State<TabThreePage> {
     if (_relativeImagePath == null || _isSubmitting) {
       return;
     }
+
+    const requiredCoins = 50;
+    final currentCoins = await CoinService.getCurrentCoins();
+
+    if (currentCoins < requiredCoins) {
+      await _showInsufficientCoinsDialog(currentCoins, requiredCoins);
+      return;
+    }
+
+    final result = await _showCoinUsageDialog(currentCoins, requiredCoins);
+    if (result != true) {
+      return;
+    }
+
+    final success = await CoinService.deductCoins(requiredCoins);
+    if (!success) {
+      showCenterToast(context, 'Failed to deduct coins');
+      return;
+    }
+
     setState(() {
       _isSubmitting = true;
     });
@@ -103,6 +126,161 @@ class _TabThreePageState extends State<TabThreePage> {
         });
       }
     }
+  }
+
+  Future<bool?> _showCoinUsageDialog(int currentCoins, int requiredCoins) {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF333333),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        title: const Row(
+          children: [
+            Icon(Icons.monetization_on, color: Color(0xFFFFCC1B)),
+            SizedBox(width: 12),
+            Text(
+              'Coins Required',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Uploading artwork requires 50 Coins.',
+              style: TextStyle(
+                color: Color(0xFFCCCCCC),
+                fontSize: 16,
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Your coins: $currentCoins',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Required: $requiredCoins Coins',
+              style: const TextStyle(
+                color: Color(0xFFFFCC1B),
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: Color(0xFF999999)),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFFFCC1B),
+              foregroundColor: Colors.black,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+            ),
+            child: const Text(
+              'Use Coins',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _showInsufficientCoinsDialog(int currentCoins, int requiredCoins) {
+    return showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF333333),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        title: const Row(
+          children: [
+            Icon(Icons.warning, color: Color(0xFFFF6B6B)),
+            SizedBox(width: 12),
+            Text(
+              'Insufficient Coins',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Uploading artwork requires 50 Coins.',
+              style: TextStyle(
+                color: Color(0xFFCCCCCC),
+                fontSize: 16,
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Your coins: $currentCoins',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Required: $requiredCoins Coins',
+              style: const TextStyle(
+                color: Color(0xFFFF6B6B),
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              'Please purchase more coins to continue.',
+              style: TextStyle(
+                color: Color(0xFFCCCCCC),
+                fontSize: 14,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text(
+              'OK',
+              style: TextStyle(color: Color(0xFFFFCC1B)),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _showUploadSuccessDialog() async {

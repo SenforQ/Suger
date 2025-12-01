@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../models/ai_style.dart';
+import '../services/coin_service.dart';
+import '../utils/preference_helper.dart';
+import '../utils/toast_utils.dart';
 import 'create_ai_avatar_page.dart';
 
 class TabTwoPage extends StatefulWidget {
@@ -45,6 +48,285 @@ class _TabTwoPageState extends State<TabTwoPage> {
   void dispose() {
     _pageController.dispose();
     super.dispose();
+  }
+
+  Future<void> _handleCreateAvatar() async {
+    final isVip = await PreferenceHelper.isVipActive();
+    final freeCount = isVip 
+        ? await PreferenceHelper.getVipFreePaintingCount()
+        : await PreferenceHelper.getFreePaintingCount();
+    final coins = await CoinService.getCurrentCoins();
+    const requiredCoins = 120;
+
+    final bool canUseFree = freeCount > 0;
+    final bool hasEnoughCoins = coins >= requiredCoins;
+
+    if (canUseFree) {
+      final result = await _showFreeUsageDialog(isVip, freeCount);
+      if (result == true) {
+        await PreferenceHelper.useFreePainting();
+        _navigateToCreatePage();
+      }
+    } else if (hasEnoughCoins) {
+      final result = await _showCoinUsageDialog(coins, requiredCoins);
+      if (result == true) {
+        final success = await CoinService.deductCoins(requiredCoins);
+        if (success) {
+          showCenterToast(context, 'Coins deducted successfully');
+          _navigateToCreatePage();
+        } else {
+          showCenterToast(context, 'Failed to deduct coins');
+        }
+      }
+    } else {
+      await _showInsufficientResourcesDialog(isVip, freeCount, coins, requiredCoins);
+    }
+  }
+
+  Future<bool?> _showFreeUsageDialog(bool isVip, int freeCount) {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF333333),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        title: const Row(
+          children: [
+            Icon(Icons.brush, color: Color(0xFFFFCC1B)),
+            SizedBox(width: 12),
+            Text(
+              'Free Usage Available',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              isVip
+                  ? 'You have $freeCount free painting uses remaining this month (VIP benefit: 10 free uses per month).'
+                  : 'You have $freeCount free painting uses remaining (Welcome bonus: 3 free uses).',
+              style: const TextStyle(
+                color: Color(0xFFCCCCCC),
+                fontSize: 16,
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Use a free painting now?',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: Color(0xFF999999)),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFFFCC1B),
+              foregroundColor: Colors.black,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+            ),
+            child: const Text(
+              'Use Free',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<bool?> _showCoinUsageDialog(int currentCoins, int requiredCoins) {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF333333),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        title: const Row(
+          children: [
+            Icon(Icons.monetization_on, color: Color(0xFFFFCC1B)),
+            SizedBox(width: 12),
+            Text(
+              'Coins Required',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Using AI painting requires 120 Coins.',
+              style: TextStyle(
+                color: Color(0xFFCCCCCC),
+                fontSize: 16,
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Your coins: $currentCoins',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Required: $requiredCoins Coins',
+              style: const TextStyle(
+                color: Color(0xFFFFCC1B),
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: Color(0xFF999999)),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFFFCC1B),
+              foregroundColor: Colors.black,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+            ),
+            child: const Text(
+              'Use Coins',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _showInsufficientResourcesDialog(
+    bool isVip,
+    int freeCount,
+    int currentCoins,
+    int requiredCoins,
+  ) {
+    return showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF333333),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        title: const Row(
+          children: [
+            Icon(Icons.warning, color: Color(0xFFFF6B6B)),
+            SizedBox(width: 12),
+            Text(
+              'Insufficient Resources',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              isVip
+                  ? 'You have used all your free painting uses this month (VIP: 10 free uses per month).'
+                  : 'You have used all your free painting uses (Welcome bonus: 3 free uses).',
+              style: const TextStyle(
+                color: Color(0xFFCCCCCC),
+                fontSize: 16,
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Your coins: $currentCoins',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Required: $requiredCoins Coins',
+              style: const TextStyle(
+                color: Color(0xFFFF6B6B),
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              'Please purchase more coins to continue.',
+              style: TextStyle(
+                color: Color(0xFFCCCCCC),
+                fontSize: 14,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text(
+              'OK',
+              style: TextStyle(color: Color(0xFFFFCC1B)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _navigateToCreatePage() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => CreateAiAvatarPage(
+          initialStyle: _styles[_selectedIndex],
+        ),
+      ),
+    );
   }
 
   @override
@@ -163,15 +445,7 @@ class _TabTwoPageState extends State<TabTwoPage> {
                         ),
                         const SizedBox(height: 20),
                         GestureDetector(
-                          onTap: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (_) => CreateAiAvatarPage(
-                                  initialStyle: _styles[_selectedIndex],
-                                ),
-                              ),
-                            );
-                          },
+                          onTap: () => _handleCreateAvatar(),
                           child: Container(
                             width: screenWidth - 40,
                             height: 56,
