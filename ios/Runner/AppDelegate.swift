@@ -110,7 +110,7 @@ import Flutter
         remoteConfig.fetch { (status, error) -> Void in
             if status == .success {
                 remoteConfig.activate { changed, error in
-                    let ComprehenBitrateTransformerFlowerJungleVersion = remoteConfig.configValue(forKey: "Zali").stringValue ?? ""
+                    let ComprehenBitrateTransformerFlowerJungleVersion = remoteConfig.configValue(forKey: "Suger").stringValue ?? ""
 //                    self.ComprehenBitrateTransformerEmeraldMagentaVersion = ComprehenBitrateTransformerFlowerJungleVersion
                     print("google ComprehenBitrateTransformerFlowerJungleVersion ：\(ComprehenBitrateTransformerFlowerJungleVersion)")
                     
